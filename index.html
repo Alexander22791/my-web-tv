@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web TV Hub</title>
+    <style>
+        :root { --accent: #ff0000; --bg: #0a0a0a; }
+        body { margin: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #000; color: white; display: flex; height: 100vh; overflow: hidden; }
+        
+        /* Sidebar */
+        #sidebar { width: 220px; background: #111; border-right: 1px solid #333; display: flex; flex-direction: column; }
+        .nav-header { padding: 20px; font-weight: bold; color: var(--accent); border-bottom: 1px solid #222; text-align: center; }
+        .btn-list { padding: 10px; flex-grow: 1; }
+        
+        .chan-btn { 
+            width: 100%; padding: 12px; margin-bottom: 8px; background: #1a1a1a; border: 1px solid #333; 
+            color: #fff; cursor: pointer; text-align: left; border-radius: 4px; transition: 0.2s;
+        }
+        .chan-btn:hover { background: #333; border-color: var(--accent); }
+        .chan-btn.active { background: var(--accent); border-color: #fff; }
+
+        /* Area Video */
+        #video-viewport { flex-grow: 1; position: relative; background: #000; }
+        iframe { width: 100%; height: 100%; border: none; }
+
+        /* Effetto Transizione */
+        #static {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: url('https://media.giphy.com/media/oEI9uWUqWMrBK/giphy.gif') center/cover;
+            opacity: 0; pointer-events: none; z-index: 10; transition: opacity 0.2s;
+        }
+    </style>
+</head>
+<body>
+
+<div id="sidebar">
+    <div class="nav-header">LIVE CHANNELS</div>
+    <div class="btn-list">
+        <button class="chan-btn active" onclick="change('PLDyER2xMpvIijTTnK2zuBeIO1QdSeDerN', this)">📺 Mia Playlist</button>
+        <button class="chan-btn" onclick="change('PLir6T8-35S8pYvM2fO5a9l6L6yF1_p6r0', this)">🍃 Natura 4K</button>
+        <button class="chan-btn" onclick="change('PLMC9KNkIncKTvTAnInR_Nf7S_9nN_Z3gX', this)">🎵 Musica Test</button>
+    </div>
+</div>
+
+<div id="video-viewport">
+    <div id="static"></div>
+    <iframe id="tv-frame" 
+        src="https://www.youtube.com/embed/videoseries?list=PLDyER2xMpvIijTTnK2zuBeIO1QdSeDerN&autoplay=1&mute=1&enablejsapi=1" 
+        allow="autoplay; encrypted-media; picture-in-picture" 
+        allowfullscreen>
+    </iframe>
+</div>
+
+<script>
+    function change(listId, element) {
+        const noise = document.getElementById('static');
+        const frame = document.getElementById('tv-frame');
+        
+        // Effetto neve
+        noise.style.opacity = "0.5";
+        
+        // UI Update
+        document.querySelectorAll('.chan-btn').forEach(b => b.classList.remove('active'));
+        element.classList.add('active');
+
+        // Caricamento nuovo canale
+        setTimeout(() => {
+            frame.src = `https://www.youtube.com/embed/videoseries?list=${listId}&autoplay=1&mute=1&enablejsapi=1`;
+            setTimeout(() => { noise.style.opacity = "0"; }, 500);
+        }, 300);
+    }
+</script>
+
+</body>
+</html>
