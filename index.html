@@ -3,34 +3,37 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OutOfTheGrid TV - Smart Mobile</title>
+    <title>OutOfTheGrid TV - Progetto Mira</title>
     <style>
-        :root { --main: #00f2ff; --bg: #000; --panel: rgba(15, 15, 15, 0.9); }
+        :root { --main: #00f2ff; --bg: #000; --panel: rgba(15, 15, 15, 0.95); }
         * { box-sizing: border-box; }
         
         body { 
             margin: 0; background: var(--bg); color: white; 
             font-family: 'Segoe UI', sans-serif; display: flex; 
-            height: 100vh; overflow: hidden; 
+            height: 100vh; overflow: hidden; flex-direction: row;
         }
 
-        /* --- SIDEBAR PC --- */
+        /* --- SIDEBAR CON AUTO-HIDE --- */
         #sidebar { 
             width: 260px; background: #111; display: flex; 
-            flex-direction: column; border-right: 1px solid #222;
+            flex-direction: column; border-right: 1px solid #333;
             transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            z-index: 100;
+            z-index: 100; flex-shrink: 0;
         }
 
-        .brand { padding: 20px; text-align: center; border-bottom: 1px solid #333; }
-        .brand h1 { font-size: 0.9rem; letter-spacing: 2px; color: var(--main); margin: 0; }
+        .brand { padding: 25px 15px; text-align: center; border-bottom: 1px solid #333; }
+        .brand h1 { font-size: 0.9rem; letter-spacing: 3px; color: var(--main); margin: 0; text-shadow: 0 0 10px var(--main); }
+        
         .menu { padding: 15px; flex-grow: 1; overflow-y: auto; }
         .btn { 
-            width: 100%; padding: 12px; margin-bottom: 8px; background: #1a1a1a; 
+            width: 100%; padding: 14px; margin-bottom: 10px; background: rgba(255,255,255,0.02); 
             border: 1px solid #333; color: #888; cursor: pointer; border-radius: 6px; 
-            text-align: left; font-size: 13px; transition: 0.2s;
+            text-align: left; font-size: 13px; font-weight: 600; transition: 0.2s;
         }
-        .btn.active { background: var(--main); color: #000; font-weight: bold; }
+        .btn:hover { border-color: var(--main); color: #fff; }
+        .btn.active { background: var(--main); color: #000; border-color: #fff; font-weight: bold; }
+        .btn span { margin-right: 10px; opacity: 0.5; font-family: monospace; }
 
         /* --- VIEWPORT VIDEO --- */
         #tv-viewport { 
@@ -45,89 +48,104 @@
 
         iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
 
-        /* --- MOBILE SPECIFICO --- */
+        /* --- RESPONSIVE & MOBILE AUTO-HIDE --- */
         @media (max-width: 768px) {
             #sidebar { 
                 position: absolute; top: 0; left: 0; width: 100%; 
                 height: auto; border-right: none; border-bottom: 1px solid var(--main);
-                transform: translateY(0); /* Parte visibile */
+                transform: translateY(0);
             }
-
-            /* Classe per nascondere la barra su mobile */
             #sidebar.hidden { transform: translateY(-100%); }
-
-            .menu { display: flex; overflow-x: auto; gap: 10px; padding: 10px; }
-            .btn { width: auto; white-space: nowrap; margin-bottom: 0; }
-            
-            .brand { display: none; } /* Riduciamo l'ingombro su mobile */
+            .menu { display: flex; overflow-x: auto; gap: 10px; padding: 10px; scrollbar-width: none; }
+            .menu::-webkit-scrollbar { display: none; }
+            .btn { width: auto; white-space: nowrap; margin-bottom: 0; padding: 10px 15px; }
+            .brand { display: none; }
         }
 
+        /* Effetti CRT & Noise */
         #noise { 
             position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
             background: url('https://media.giphy.com/media/oEI9uWUqWMrBK/giphy.gif') center/cover; 
             opacity: 0; pointer-events: none; z-index: 20; transition: opacity 0.2s; 
         }
+        #scanlines {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%);
+            background-size: 100% 3px; pointer-events: none; z-index: 10;
+        }
+        .info-bar { position: absolute; bottom: 20px; right: 20px; font-family: monospace; font-size: 11px; color: var(--main); z-index: 30; background: rgba(0,0,0,0.5); padding: 5px; }
     </style>
 </head>
-<body onclick="showMenuMobile()">
+<body onclick="handleInteraction()">
 
-<div id="sidebar" id="sidebar">
+<div id="sidebar">
     <div class="brand"><h1>OUT OF THE GRID</h1></div>
     <div class="menu">
-        <button class="btn active" onclick="tune('PLDyER2xMpvIijTTnK2zuBeIO1QdSeDerN', this)">CH 01 | HUB</button>
-        <button class="btn" onclick="tune('PLDyER2xMpvIijTTnK2zuBeIO1QdSeDerN', this)">CH 02 | EDUCATIONAL</button>
-        <button class="btn" onclick="tune('PLir6T8-35S8pYvM2fO5a9l6L6yF1_p6r0', this)">CH 03 | DISCOVERY</button>
+        <button class="btn" onclick="tune('ID_PLAYLIST_OUTOFTHEGRID', this)"><span>01</span> OUTOFTHEGRID</button>
+        <button class="btn active" onclick="tune('PLDyER2xMpvIijTTnK2zuBeIO1QdSeDerN', this)"><span>02</span> EDUCATIONAL</button>
+        <button class="btn" onclick="tune('ID_PLAYLIST_DISCOVERY', this)"><span>03</span> DISCOVERY</button>
+        <button class="btn" onclick="tune('ID_PLAYLIST_GEOPOLITICA', this)"><span>04</span> GEOPOLITICA</button>
+        <button class="btn" onclick="tune('ID_PLAYLIST_SVAGO', this)"><span>05</span> SVAGO</button>
     </div>
 </div>
 
 <div id="tv-viewport">
     <div class="video-container">
         <div id="noise"></div>
+        <div id="scanlines"></div>
         <iframe id="tv-engine" src="" allow="autoplay; encrypted-media" allowfullscreen></iframe>
     </div>
+    <div class="info-bar" id="status-clock">SIGNAL: OK | 00:00:00</div>
 </div>
 
 <script>
-    let hideTimeout;
+    let hideTimer;
     const sidebar = document.getElementById('sidebar');
+    const clock = document.getElementById('status-clock');
 
-    function showMenuMobile() {
+    // Orologio e Interazione
+    setInterval(() => {
+        clock.innerText = `SIGNAL: STABLE | ${new Date().toLocaleTimeString()}`;
+    }, 1000);
+
+    function handleInteraction() {
         if (window.innerWidth <= 768) {
             sidebar.classList.remove('hidden');
-            clearTimeout(hideTimeout);
-            // Nasconde dopo 3 secondi di inattività
-            hideTimeout = setTimeout(() => {
-                sidebar.classList.add('hidden');
-            }, 3000);
+            clearTimeout(hideTimer);
+            hideTimer = setTimeout(() => { sidebar.classList.add('hidden'); }, 3000);
         }
     }
 
-    function tune(id, btn) {
+    // Funzione Sintonizzazione
+    function tune(playlistId, btn) {
         const noise = document.getElementById('noise');
         const player = document.getElementById('tv-engine');
-        noise.style.opacity = "0.8";
         
+        noise.style.opacity = "0.8";
         document.querySelectorAll('.btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
 
-        // Sincronizzazione ora
+        // Logica 24h basata sui minuti dell'ora attuale
         const now = new Date();
-        const start = (now.getMinutes() * 60) + now.getSeconds();
+        const startSec = (now.getMinutes() * 60) + now.getSeconds();
 
         setTimeout(() => {
-            player.src = `https://www.youtube.com/embed/videoseries?list=${id}&autoplay=1&mute=1&start=${start}&enablejsapi=1`;
-            setTimeout(() => { noise.style.opacity = "0"; }, 500);
-        }, 300);
-        
-        // Su mobile, dopo aver cambiato, nascondi subito
-        if (window.innerWidth <= 768) {
-            setTimeout(() => sidebar.classList.add('hidden'), 1000);
-        }
+            if(playlistId.includes('ID_PLAYLIST')) {
+                player.src = "";
+                alert("Canale in fase di allestimento.");
+            } else {
+                player.src = `https://www.youtube.com/embed/videoseries?list=${playlistId}&autoplay=1&mute=1&index=0&start=${startSec}&enablejsapi=1`;
+            }
+            setTimeout(() => { noise.style.opacity = "0"; }, 600);
+        }, 400);
+
+        if (window.innerWidth <= 768) setTimeout(() => sidebar.classList.add('hidden'), 1000);
     }
 
     window.onload = () => {
-        document.querySelector('.btn.active').click();
-        showMenuMobile(); // Mostra il menu all'avvio
+        const firstActive = document.querySelector('.btn.active');
+        if(firstActive) firstActive.click();
+        if (window.innerWidth <= 768) hideTimer = setTimeout(() => { sidebar.classList.add('hidden'); }, 3000);
     };
 </script>
 
