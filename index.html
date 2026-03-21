@@ -3,73 +3,124 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Web TV Hub</title>
+    <title>OutOfTheGrid TV - Control Center</title>
     <style>
-        :root { --accent: #ff0000; --bg: #0a0a0a; }
-        body { margin: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #000; color: white; display: flex; height: 100vh; overflow: hidden; }
-        
-        /* Sidebar */
-        #sidebar { width: 220px; background: #111; border-right: 1px solid #333; display: flex; flex-direction: column; }
-        .nav-header { padding: 20px; font-weight: bold; color: var(--accent); border-bottom: 1px solid #222; text-align: center; }
-        .btn-list { padding: 10px; flex-grow: 1; }
-        
-        .chan-btn { 
-            width: 100%; padding: 12px; margin-bottom: 8px; background: #1a1a1a; border: 1px solid #333; 
-            color: #fff; cursor: pointer; text-align: left; border-radius: 4px; transition: 0.2s;
-        }
-        .chan-btn:hover { background: #333; border-color: var(--accent); }
-        .chan-btn.active { background: var(--accent); border-color: #fff; }
+        :root { --main: #00f2ff; --bg: #050505; --panel: #111; }
+        body { margin: 0; background: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; display: flex; height: 100vh; overflow: hidden; }
 
-        /* Area Video */
-        #video-viewport { flex-grow: 1; position: relative; background: #000; }
+        /* Barra Laterale */
+        #sidebar { width: 260px; background: var(--panel); border-right: 1px solid #222; display: flex; flex-direction: column; z-index: 100; box-shadow: 10px 0 30px rgba(0,0,0,0.5); }
+        .brand { padding: 30px 20px; text-align: center; border-bottom: 1px solid #333; }
+        .brand h1 { font-size: 1rem; letter-spacing: 4px; color: var(--main); margin: 0; text-shadow: 0 0 10px var(--main); }
+        
+        .menu { padding: 20px; flex-grow: 1; overflow-y: auto; }
+        .btn { 
+            width: 100%; padding: 15px; margin-bottom: 12px; background: rgba(255,255,255,0.02); 
+            border: 1px solid #333; color: #888; cursor: pointer; border-radius: 6px; 
+            text-align: left; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); font-size: 13px; font-weight: 600;
+            display: flex; align-items: center;
+        }
+        .btn:hover { background: rgba(0, 242, 255, 0.05); border-color: var(--main); color: #fff; transform: translateX(8px); }
+        .btn.active { background: var(--main); color: #000; border-color: #fff; box-shadow: 0 0 20px rgba(0, 242, 255, 0.3); }
+        .btn span { margin-right: 12px; font-family: monospace; opacity: 0.5; }
+
+        /* Monitor */
+        #tv-viewport { flex-grow: 1; position: relative; background: #000; overflow: hidden; }
         iframe { width: 100%; height: 100%; border: none; }
 
-        /* Effetto Transizione */
-        #static {
+        /* Overlay CRT & Noise */
+        #noise {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             background: url('https://media.giphy.com/media/oEI9uWUqWMrBK/giphy.gif') center/cover;
-            opacity: 0; pointer-events: none; z-index: 10; transition: opacity 0.2s;
+            opacity: 0; pointer-events: none; z-index: 20; transition: opacity 0.2s;
         }
+        #scanlines {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.02), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.02));
+            background-size: 100% 3px, 3px 100%; pointer-events: none; z-index: 10;
+        }
+
+        .footer-info { position: absolute; bottom: 20px; right: 20px; font-family: monospace; font-size: 11px; color: var(--main); z-index: 30; letter-spacing: 1px; }
     </style>
 </head>
 <body>
 
 <div id="sidebar">
-    <div class="nav-header">LIVE CHANNELS</div>
-    <div class="btn-list">
-        <button class="chan-btn active" onclick="change('PLDyER2xMpvIijTTnK2zuBeIO1QdSeDerN', this)">📺 Mia Playlist</button>
-        <button class="chan-btn" onclick="change('PLir6T8-35S8pYvM2fO5a9l6L6yF1_p6r0', this)">🍃 Natura 4K</button>
-        <button class="chan-btn" onclick="change('PLMC9KNkIncKTvTAnInR_Nf7S_9nN_Z3gX', this)">🎵 Musica Test</button>
+    <div class="brand"><h1>OUT OF THE GRID</h1></div>
+    <div class="menu">
+        <button class="btn" onclick="tune('PLDyER2xMpvIijTTnK2zuBeIO1QdSeDerN', this)">
+            <span>01</span> OUTOFTHEGRID
+        </button>
+
+        <button class="btn active" onclick="tune('PLDyER2xMpvIijTTnK2zuBeIO1QdSeDerN', this)">
+            <span>02</span> EDUCATIONAL
+        </button>
+
+        <button class="btn" onclick="tune('ID_PLAYLIST_DISCOVERY', this)">
+            <span>03</span> DISCOVERY
+        </button>
+
+        <button class="btn" onclick="tune('ID_PLAYLIST_GEOPOLITICA', this)">
+            <span>04</span> GEOPOLITICA
+        </button>
+
+        <button class="btn" onclick="tune('ID_PLAYLIST_SVAGO', this)">
+            <span>05</span> SVAGO
+        </button>
     </div>
 </div>
 
-<div id="video-viewport">
-    <div id="static"></div>
-    <iframe id="tv-frame" 
-        src="https://www.youtube.com/embed/videoseries?list=PLDyER2xMpvIijTTnK2zuBeIO1QdSeDerN&autoplay=1&mute=1&enablejsapi=1" 
-        allow="autoplay; encrypted-media; picture-in-picture" 
-        allowfullscreen>
-    </iframe>
+<div id="tv-viewport">
+    <div id="noise"></div>
+    <div id="scanlines"></div>
+    <div class="footer-info" id="clock">STATUS: CONNECTED | 00:00:00</div>
+    <iframe id="tv-engine" src="" allow="autoplay; encrypted-media" allowfullscreen></iframe>
 </div>
 
 <script>
-    function change(listId, element) {
-        const noise = document.getElementById('static');
-        const frame = document.getElementById('tv-frame');
-        
-        // Effetto neve
-        noise.style.opacity = "0.5";
-        
-        // UI Update
-        document.querySelectorAll('.chan-btn').forEach(b => b.classList.remove('active'));
-        element.classList.add('active');
-
-        // Caricamento nuovo canale
-        setTimeout(() => {
-            frame.src = `https://www.youtube.com/embed/videoseries?list=${listId}&autoplay=1&mute=1&enablejsapi=1`;
-            setTimeout(() => { noise.style.opacity = "0"; }, 500);
-        }, 300);
+    // Gestione Orologio
+    function updateClock() {
+        const d = new Date();
+        document.getElementById('clock').innerText = `STATUS: STABLE | ${d.toLocaleTimeString()}`;
     }
+    setInterval(updateClock, 1000);
+
+    // Funzione Sintonizzazione
+    function tune(playlistId, btn) {
+        const noise = document.getElementById('noise');
+        const player = document.getElementById('tv-engine');
+        
+        // Attiva Disturbo
+        noise.style.opacity = "0.8";
+        
+        // Gestione UI Bottoni
+        document.querySelectorAll('.btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        // LOGICA 24H: Calcola il punto di inizio basato sull'orario attuale
+        // Esempio: Ogni ora il ciclo riparte. Se sono le 14:15, il video parte dal minuto 15.
+        const now = new Date();
+        const startSeconds = (now.getMinutes() * 60) + now.getSeconds();
+
+        setTimeout(() => {
+            // Se l'ID non è ancora inserito, mostra un video di test o resta nero
+            if(playlistId.includes('ID_PLAYLIST')) {
+                player.src = "";
+                alert("Playlist non ancora configurata per questo canale.");
+            } else {
+                player.src = `https://www.youtube.com/embed/videoseries?list=${playlistId}&autoplay=1&mute=1&index=0&start=${startSeconds}&enablejsapi=1`;
+            }
+            
+            // Rimuovi Disturbo
+            setTimeout(() => { noise.style.opacity = "0"; }, 700);
+        }, 400);
+    }
+
+    // Caricamento Iniziale Automatica
+    window.onload = () => {
+        const activeChannel = document.querySelector('.btn.active');
+        if(activeChannel) activeChannel.click();
+    };
 </script>
 
 </body>
