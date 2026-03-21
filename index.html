@@ -3,123 +3,131 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OutOfTheGrid TV - Control Center</title>
+    <title>OutOfTheGrid TV - Smart Mobile</title>
     <style>
-        :root { --main: #00f2ff; --bg: #050505; --panel: #111; }
-        body { margin: 0; background: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; display: flex; height: 100vh; overflow: hidden; }
-
-        /* Barra Laterale */
-        #sidebar { width: 260px; background: var(--panel); border-right: 1px solid #222; display: flex; flex-direction: column; z-index: 100; box-shadow: 10px 0 30px rgba(0,0,0,0.5); }
-        .brand { padding: 30px 20px; text-align: center; border-bottom: 1px solid #333; }
-        .brand h1 { font-size: 1rem; letter-spacing: 4px; color: var(--main); margin: 0; text-shadow: 0 0 10px var(--main); }
+        :root { --main: #00f2ff; --bg: #000; --panel: rgba(15, 15, 15, 0.9); }
+        * { box-sizing: border-box; }
         
-        .menu { padding: 20px; flex-grow: 1; overflow-y: auto; }
+        body { 
+            margin: 0; background: var(--bg); color: white; 
+            font-family: 'Segoe UI', sans-serif; display: flex; 
+            height: 100vh; overflow: hidden; 
+        }
+
+        /* --- SIDEBAR PC --- */
+        #sidebar { 
+            width: 260px; background: #111; display: flex; 
+            flex-direction: column; border-right: 1px solid #222;
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 100;
+        }
+
+        .brand { padding: 20px; text-align: center; border-bottom: 1px solid #333; }
+        .brand h1 { font-size: 0.9rem; letter-spacing: 2px; color: var(--main); margin: 0; }
+        .menu { padding: 15px; flex-grow: 1; overflow-y: auto; }
         .btn { 
-            width: 100%; padding: 15px; margin-bottom: 12px; background: rgba(255,255,255,0.02); 
+            width: 100%; padding: 12px; margin-bottom: 8px; background: #1a1a1a; 
             border: 1px solid #333; color: #888; cursor: pointer; border-radius: 6px; 
-            text-align: left; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); font-size: 13px; font-weight: 600;
-            display: flex; align-items: center;
+            text-align: left; font-size: 13px; transition: 0.2s;
         }
-        .btn:hover { background: rgba(0, 242, 255, 0.05); border-color: var(--main); color: #fff; transform: translateX(8px); }
-        .btn.active { background: var(--main); color: #000; border-color: #fff; box-shadow: 0 0 20px rgba(0, 242, 255, 0.3); }
-        .btn span { margin-right: 12px; font-family: monospace; opacity: 0.5; }
+        .btn.active { background: var(--main); color: #000; font-weight: bold; }
 
-        /* Monitor */
-        #tv-viewport { flex-grow: 1; position: relative; background: #000; overflow: hidden; }
-        iframe { width: 100%; height: 100%; border: none; }
-
-        /* Overlay CRT & Noise */
-        #noise {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: url('https://media.giphy.com/media/oEI9uWUqWMrBK/giphy.gif') center/cover;
-            opacity: 0; pointer-events: none; z-index: 20; transition: opacity 0.2s;
-        }
-        #scanlines {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.02), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.02));
-            background-size: 100% 3px, 3px 100%; pointer-events: none; z-index: 10;
+        /* --- VIEWPORT VIDEO --- */
+        #tv-viewport { 
+            flex-grow: 1; display: flex; align-items: center; 
+            justify-content: center; background: #000; position: relative;
         }
 
-        .footer-info { position: absolute; bottom: 20px; right: 20px; font-family: monospace; font-size: 11px; color: var(--main); z-index: 30; letter-spacing: 1px; }
+        .video-container {
+            width: 100%; position: relative; 
+            padding-bottom: 56.25%; height: 0; overflow: hidden;
+        }
+
+        iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
+
+        /* --- MOBILE SPECIFICO --- */
+        @media (max-width: 768px) {
+            #sidebar { 
+                position: absolute; top: 0; left: 0; width: 100%; 
+                height: auto; border-right: none; border-bottom: 1px solid var(--main);
+                transform: translateY(0); /* Parte visibile */
+            }
+
+            /* Classe per nascondere la barra su mobile */
+            #sidebar.hidden { transform: translateY(-100%); }
+
+            .menu { display: flex; overflow-x: auto; gap: 10px; padding: 10px; }
+            .btn { width: auto; white-space: nowrap; margin-bottom: 0; }
+            
+            .brand { display: none; } /* Riduciamo l'ingombro su mobile */
+        }
+
+        #noise { 
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
+            background: url('https://media.giphy.com/media/oEI9uWUqWMrBK/giphy.gif') center/cover; 
+            opacity: 0; pointer-events: none; z-index: 20; transition: opacity 0.2s; 
+        }
     </style>
 </head>
-<body>
+<body onclick="showMenuMobile()">
 
-<div id="sidebar">
+<div id="sidebar" id="sidebar">
     <div class="brand"><h1>OUT OF THE GRID</h1></div>
     <div class="menu">
-        <button class="btn" onclick="tune('PLDyER2xMpvIijTTnK2zuBeIO1QdSeDerN', this)">
-            <span>01</span> OUTOFTHEGRID
-        </button>
-
-        <button class="btn active" onclick="tune('PLDyER2xMpvIijTTnK2zuBeIO1QdSeDerN', this)">
-            <span>02</span> EDUCATIONAL
-        </button>
-
-        <button class="btn" onclick="tune('ID_PLAYLIST_DISCOVERY', this)">
-            <span>03</span> DISCOVERY
-        </button>
-
-        <button class="btn" onclick="tune('ID_PLAYLIST_GEOPOLITICA', this)">
-            <span>04</span> GEOPOLITICA
-        </button>
-
-        <button class="btn" onclick="tune('ID_PLAYLIST_SVAGO', this)">
-            <span>05</span> SVAGO
-        </button>
+        <button class="btn active" onclick="tune('PLDyER2xMpvIijTTnK2zuBeIO1QdSeDerN', this)">CH 01 | HUB</button>
+        <button class="btn" onclick="tune('PLDyER2xMpvIijTTnK2zuBeIO1QdSeDerN', this)">CH 02 | EDUCATIONAL</button>
+        <button class="btn" onclick="tune('PLir6T8-35S8pYvM2fO5a9l6L6yF1_p6r0', this)">CH 03 | DISCOVERY</button>
     </div>
 </div>
 
 <div id="tv-viewport">
-    <div id="noise"></div>
-    <div id="scanlines"></div>
-    <div class="footer-info" id="clock">STATUS: CONNECTED | 00:00:00</div>
-    <iframe id="tv-engine" src="" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+    <div class="video-container">
+        <div id="noise"></div>
+        <iframe id="tv-engine" src="" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+    </div>
 </div>
 
 <script>
-    // Gestione Orologio
-    function updateClock() {
-        const d = new Date();
-        document.getElementById('clock').innerText = `STATUS: STABLE | ${d.toLocaleTimeString()}`;
-    }
-    setInterval(updateClock, 1000);
+    let hideTimeout;
+    const sidebar = document.getElementById('sidebar');
 
-    // Funzione Sintonizzazione
-    function tune(playlistId, btn) {
+    function showMenuMobile() {
+        if (window.innerWidth <= 768) {
+            sidebar.classList.remove('hidden');
+            clearTimeout(hideTimeout);
+            // Nasconde dopo 3 secondi di inattività
+            hideTimeout = setTimeout(() => {
+                sidebar.classList.add('hidden');
+            }, 3000);
+        }
+    }
+
+    function tune(id, btn) {
         const noise = document.getElementById('noise');
         const player = document.getElementById('tv-engine');
-        
-        // Attiva Disturbo
         noise.style.opacity = "0.8";
         
-        // Gestione UI Bottoni
         document.querySelectorAll('.btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
 
-        // LOGICA 24H: Calcola il punto di inizio basato sull'orario attuale
-        // Esempio: Ogni ora il ciclo riparte. Se sono le 14:15, il video parte dal minuto 15.
+        // Sincronizzazione ora
         const now = new Date();
-        const startSeconds = (now.getMinutes() * 60) + now.getSeconds();
+        const start = (now.getMinutes() * 60) + now.getSeconds();
 
         setTimeout(() => {
-            // Se l'ID non è ancora inserito, mostra un video di test o resta nero
-            if(playlistId.includes('ID_PLAYLIST')) {
-                player.src = "";
-                alert("Playlist non ancora configurata per questo canale.");
-            } else {
-                player.src = `https://www.youtube.com/embed/videoseries?list=${playlistId}&autoplay=1&mute=1&index=0&start=${startSeconds}&enablejsapi=1`;
-            }
-            
-            // Rimuovi Disturbo
-            setTimeout(() => { noise.style.opacity = "0"; }, 700);
-        }, 400);
+            player.src = `https://www.youtube.com/embed/videoseries?list=${id}&autoplay=1&mute=1&start=${start}&enablejsapi=1`;
+            setTimeout(() => { noise.style.opacity = "0"; }, 500);
+        }, 300);
+        
+        // Su mobile, dopo aver cambiato, nascondi subito
+        if (window.innerWidth <= 768) {
+            setTimeout(() => sidebar.classList.add('hidden'), 1000);
+        }
     }
 
-    // Caricamento Iniziale Automatica
     window.onload = () => {
-        const activeChannel = document.querySelector('.btn.active');
-        if(activeChannel) activeChannel.click();
+        document.querySelector('.btn.active').click();
+        showMenuMobile(); // Mostra il menu all'avvio
     };
 </script>
 
