@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { background: transparent; color: #00f2ff; font-family: monospace; margin: 0; overflow: hidden; }
+        .tv-box { 
+            border: 1px solid #333; background: rgba(0,0,0,0.8); padding: 15px; 
+            border-left: 4px solid #00f2ff; box-shadow: 0 0 15px rgba(0,242,255,0.1);
+        }
+        .live-tag { background: #ff0055; color: white; padding: 2px 6px; font-size: 10px; font-weight: bold; margin-bottom: 10px; display: inline-block; }
+        .channel-info { font-size: 13px; margin-bottom: 5px; color: #aaa; }
+        .program-title { font-size: 16px; font-weight: bold; color: #fff; text-transform: uppercase; }
+        .progress-bar { width: 100%; height: 2px; background: #222; margin-top: 10px; position: relative; }
+        .progress-fill { height: 100%; background: #00f2ff; width: 45%; transition: width 1s; }
+    </style>
+</head>
+<body>
+    <div class="tv-box">
+        <div class="live-tag">ON AIR</div>
+        <div id="display">
+            <div class="channel-info" id="ch-name">CH 02 | EDUCATIONAL</div>
+            <div class="program-title" id="prog-title">SISTEMA PENSIONISTICO: LA VERITÀ</div>
+            <div class="progress-bar"><div class="progress-fill" id="fill"></div></div>
+        </div>
+    </div>
+
+    <script>
+        const programs = [
+            { ch: "CH 01 | OUTOFTHEGRID", title: "AUTOSUFFICIENZA PRATICA" },
+            { ch: "CH 02 | EDUCATIONAL", title: "FOCUS: ANALISI NOVA LECTIO" },
+            { ch: "CH 03 | DISCOVERY", title: "ESPLORAZIONE OFF-GRID" },
+            { ch: "CH 04 | GEOPOLITICA", title: "I CONFLITTI NASCOSTI" },
+            { ch: "CH 05 | SVAGO", title: "AVVENTURE NEL MONDO" }
+        ];
+
+        function updateLive() {
+            const now = new Date();
+            // Cambia canale mostrato ogni 10 secondi per dare dinamismo
+            const index = Math.floor((now.getSeconds() / 10) % programs.length);
+            const prog = programs[index];
+            
+            document.getElementById('ch-name').innerText = prog.ch;
+            document.getElementById('prog-title').innerText = prog.title;
+            
+            // Simula la barra di avanzamento del video basata sui minuti
+            const progress = (now.getMinutes() / 60) * 100;
+            document.getElementById('fill').style.width = progress + "%";
+        }
+
+        setInterval(updateLive, 1000);
+        updateLive();
+    </script>
+</body>
+</html>
