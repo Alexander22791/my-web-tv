@@ -5,51 +5,111 @@
     <style>
         body { background: transparent; color: #00f2ff; font-family: 'Segoe UI', monospace; margin: 0; overflow: hidden; cursor: pointer; }
         .tv-box { 
-            border: 1px solid #333; background: rgba(5, 5, 5, 0.9); padding: 12px; 
-            border-left: 3px solid #00f2ff; position: relative;
+            border: 1px solid #333; background: rgba(5, 5, 5, 0.95); padding: 12px; 
+            border-left: 3px solid #00f2ff; position: relative; height: 90px;
         }
-        .live-tag { background: #ff0055; color: white; padding: 2px 6px; font-size: 10px; font-weight: bold; display: inline-block; margin-bottom: 8px; }
-        .ch-info { font-size: 11px; color: #888; letter-spacing: 1px; }
-        .video-title { font-size: 14px; font-weight: bold; color: #fff; margin-top: 4px; line-height: 1.3; }
-        .progress-container { width: 100%; height: 2px; background: #222; margin-top: 10px; }
+        .live-tag { background: #ff0055; color: white; padding: 2px 6px; font-size: 10px; font-weight: bold; display: inline-block; margin-bottom: 6px; }
+        .ch-info { font-size: 10px; color: #888; letter-spacing: 1px; text-transform: uppercase; }
+        .video-title { font-size: 13px; font-weight: bold; color: #fff; margin-top: 4px; line-height: 1.2; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .progress-container { width: 100%; height: 2px; background: #222; margin-top: 8px; }
         #progress-bar { height: 100%; background: #00f2ff; width: 0%; transition: width 1s; }
     </style>
 </head>
 <body onclick="window.top.location.href='https://www.outofthegrid.it/progetto-mira'">
 
     <div class="tv-box">
-        <div class="live-tag">LIVE NOW</div>
+        <div class="live-tag">LIVE</div>
         <div class="ch-info" id="ch-display">SINCRONIZZAZIONE...</div>
         <div class="video-title" id="title-display">RECUPERO SEGNALE...</div>
         <div class="progress-container"><div id="progress-bar"></div></div>
     </div>
 
     <script>
-        // Mappiamo i canali esattamente come nel tuo codice TV
-        const schedule = [
-            { id: 'ID_PLAYLIST_OUTOFTHEGRID', ch: "CH 01 | OUTOFTHEGRID", title: "CONTENUTI ORIGINALI" },
-            { id: 'PL9kVuZvw_YvCad9f2carxhNQyzZPR9SHg', ch: "CH 02 | EDUCATIONAL", title: "NOVA LECTIO: APPROFONDIMENTI" },
-            { id: 'PL9kVuZvw_YvBPwtYx2jxcISaPQYWmi-jy', ch: "CH 03 | DISCOVERY", title: "ESPLORAZIONI E NATURA" },
-            { id: 'PL9kVuZvw_YvD2LAyUOGQvwZFt0ErQwoBa', ch: "CH 04 | GEOPOLITICA", title: "ANALISI MONDIALE" },
-            { id: 'PL9kVuZvw_YvDnmUESit4RyKIYQQzsgPpE', ch: "CH 05 | SVAGO", title: "MOMENTI OFF-GRID" }
-        ];
+        const playlists = {
+            geopolitica: [
+                { t: "Perché la guerra in Iran non è solo geopolitica", d: 1913 },
+                { t: "Perché USA e Israele hanno davvero attaccato l'Iran", d: 1473 },
+                { t: "Perché a nessuno conviene un'Europa forte e unita", d: 1554 },
+                { t: "Perché il diritto internazionale non funziona come crediamo", d: 1298 },
+                { t: "Perché l'Europa non riesce a frenare le migrazioni clandestine?", d: 1572 }
+            ],
+            educational: [
+                { t: "La bomba delle pensioni: cosa attende i giovani tra 30 anni", d: 1752 },
+                { t: "Perché in Italia lavoriamo di più ma siamo sempre più poveri", d: 1856 },
+                { t: "Perché in Italia non si fanno più figli", d: 1545 },
+                { t: "L’Italia sta pagando carissimo il prezzo del gas. Chi ci guadagna?", d: 1473 },
+                { t: "Buco nero Italia: stipendi bloccati e produttività stagnante", d: 1344 },
+                { t: "Zone blu: il segreto della longevità in Sardegna", d: 1793 },
+                { t: "Declino demografico: perché è un grosso problema?", d: 1728 },
+                { t: "Come il Vaticano riciclava i soldi di Cosa Nostra e P2", d: 1419 },
+                { t: "Chi ha finanziato davvero i Nazisti?", d: 1688 },
+                { t: "TRIANGOLO della MORTE: quando i rifiuti valgono più dell'oro", d: 1036 }
+            ],
+            discovery: [
+                { t: "Humans Can’t Survive Here - So Who Built This?", d: 1823 },
+                { t: "Hanno spostato 100 tonnellate di pietre 2000 anni fa...", d: 1909 },
+                { t: "Guanches: la Storia NASCOSTA delle Canarie", d: 1349 },
+                { t: "Google Earth ha rivelato strane strutture antiche", d: 1319 },
+                { t: "I RISK Everything… to explore secret tunnels", d: 1333 },
+                { t: "Sono scomparsi e hanno lasciato questa struttura impossibile", d: 1383 },
+                { t: "LA ROMANIA CHE NON TI ASPETTI !! 😱⛰️", d: 1049 },
+                { t: "RAGGIUNGO ISTANBUL!! MA L'INIZIO NON È DEI MIGLIORI", d: 1127 },
+                { t: "PARTITO!! Turchia, sto arrivando!!", d: 813 },
+                { t: "NON CI SARÀ PIÙ UN'ALTRA OCCASIONE!!", d: 1270 },
+                { t: "Raggiungo i miei PRIMI 30.000 km PERCORSI A PIEDI!!", d: 1320 },
+                { t: "ARRIVO IN SERBIA! VENGO PERQUISITO", d: 1307 },
+                { t: "Arrivo in CROAZIA! Supero il confine 🇸🇮", d: 855 }
+            ],
+            svago: [
+                { t: "Uno YouTuber è ENTRATO nell'aereo di Jeffrey Epstein", d: 1274 },
+                { t: "Siamo mucche da mungere - Rospon", d: 707 },
+                { t: "Nuova TRUFFA Auto su Subito.it", d: 868 }
+            ]
+        };
 
-        function updateStatus() {
+        const channelNames = ["OUTOFTHEGRID", "EDUCATIONAL", "DISCOVERY", "GEOPOLITICA", "SVAGO"];
+
+        function getLiveVideo() {
             const now = new Date();
-            // Ruota le info ogni 12 secondi per mostrare cosa succede su tutti i canali
-            const index = Math.floor((now.getSeconds() / 12) % schedule.length);
-            const current = schedule[index];
+            const totalSecondsInHour = (now.getMinutes() * 60) + now.getSeconds();
+            
+            // Determina quale canale mostrare a rotazione nel box ogni 15 secondi
+            const chIndex = Math.floor((now.getSeconds() / 15) % 5);
+            const chKey = Object.keys(playlists)[chIndex - 1]; // -1 perché saltiamo il CH 01 momentaneamente
+            
+            if (chIndex === 0 || !chKey) {
+                document.getElementById('ch-display').innerText = "CH 01 | OUTOFTHEGRID";
+                document.getElementById('title-display').innerText = "STREAMING ORIGINALE";
+                document.getElementById('progress-bar').style.width = "50%";
+                return;
+            }
 
-            document.getElementById('ch-display').innerText = current.ch;
-            document.getElementById('title-display').innerText = current.title;
+            const playlist = playlists[chKey];
+            let accumulated = 0;
+            let found = false;
 
-            // Barra di avanzamento basata sull'ora (coerente con la TV)
-            const progress = (now.getMinutes() / 60) * 100;
-            document.getElementById('progress-bar').style.width = progress + "%";
+            for (let vid of playlist) {
+                if (totalSecondsInHour >= accumulated && totalSecondsInHour < (accumulated + vid.d)) {
+                    document.getElementById('ch-display').innerText = `CH 0${chIndex + 1} | ${channelNames[chIndex]}`;
+                    document.getElementById('title-display').innerText = vid.t;
+                    const percent = ((totalSecondsInHour - accumulated) / vid.d) * 100;
+                    document.getElementById('progress-bar').style.width = percent + "%";
+                    found = true;
+                    break;
+                }
+                accumulated += vid.d;
+            }
+
+            if (!found) { // Se l'ora supera la durata totale, ricomincia il loop
+                const first = playlist[0];
+                document.getElementById('ch-display').innerText = `CH 0${chIndex + 1} | ${channelNames[chIndex]}`;
+                document.getElementById('title-display').innerText = first.t;
+                document.getElementById('progress-bar').style.width = "0%";
+            }
         }
 
-        setInterval(updateStatus, 1000);
-        updateStatus();
+        setInterval(getLiveVideo, 1000);
+        getLiveVideo();
     </script>
 </body>
 </html>
