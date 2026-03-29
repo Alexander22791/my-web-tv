@@ -19,34 +19,37 @@
 
     <div class="tv-box">
         <div class="live-tag">LIVE NOW</div>
-        <div class="ch-info" id="ch-display">CARICAMENTO SEGNALE...</div>
-        <div class="video-title" id="title-display">SINTONIZZAZIONE IN CORSO...</div>
+        <div class="ch-info" id="ch-display">SINCRONIZZAZIONE...</div>
+        <div class="video-title" id="title-display">RECUPERO SEGNALE...</div>
         <div class="progress-container"><div id="progress-bar"></div></div>
     </div>
 
     <script>
-        // Database dei video attualmente nelle tue playlist
+        // Mappiamo i canali esattamente come nel tuo codice TV
         const schedule = [
-            { ch: "CH 02 | EDUCATIONAL", title: "La bomba delle pensioni: cosa attende i giovani" },
-            { ch: "CH 03 | DISCOVERY", title: "Nazario Nesta: A piedi verso l'Europa" },
-            { ch: "CH 04 | GEOPOLITICA", title: "Omega Click: Verità Nascoste" }
+            { id: 'ID_PLAYLIST_OUTOFTHEGRID', ch: "CH 01 | OUTOFTHEGRID", title: "CONTENUTI ORIGINALI" },
+            { id: 'PL9kVuZvw_YvCad9f2carxhNQyzZPR9SHg', ch: "CH 02 | EDUCATIONAL", title: "NOVA LECTIO: APPROFONDIMENTI" },
+            { id: 'PL9kVuZvw_YvBPwtYx2jxcISaPQYWmi-jy', ch: "CH 03 | DISCOVERY", title: "ESPLORAZIONI E NATURA" },
+            { id: 'PL9kVuZvw_YvD2LAyUOGQvwZFt0ErQwoBa', ch: "CH 04 | GEOPOLITICA", title: "ANALISI MONDIALE" },
+            { id: 'PL9kVuZvw_YvDnmUESit4RyKIYQQzsgPpE', ch: "CH 05 | SVAGO", title: "MOMENTI OFF-GRID" }
         ];
 
-        function refreshBox() {
+        function updateStatus() {
             const now = new Date();
-            // Cambia il video mostrato nel box ogni 15 secondi per rotazione
-            const currentVideo = schedule[now.getSeconds() % schedule.length];
-            
-            document.getElementById('ch-display').innerText = currentVideo.ch;
-            document.getElementById('title-display').innerText = currentVideo.title;
-            
-            // Simula l'avanzamento reale basato sui minuti dell'ora (come la tua TV)
+            // Ruota le info ogni 12 secondi per mostrare cosa succede su tutti i canali
+            const index = Math.floor((now.getSeconds() / 12) % schedule.length);
+            const current = schedule[index];
+
+            document.getElementById('ch-display').innerText = current.ch;
+            document.getElementById('title-display').innerText = current.title;
+
+            // Barra di avanzamento basata sull'ora (coerente con la TV)
             const progress = (now.getMinutes() / 60) * 100;
             document.getElementById('progress-bar').style.width = progress + "%";
         }
 
-        setInterval(refreshBox, 1000);
-        refreshBox();
+        setInterval(updateStatus, 1000);
+        updateStatus();
     </script>
 </body>
 </html>
