@@ -1,54 +1,52 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <meta charset="UTF-8">
     <style>
-        body { background: transparent; color: #00f2ff; font-family: monospace; margin: 0; overflow: hidden; }
+        body { background: transparent; color: #00f2ff; font-family: 'Segoe UI', monospace; margin: 0; overflow: hidden; cursor: pointer; }
         .tv-box { 
-            border: 1px solid #333; background: rgba(0,0,0,0.8); padding: 15px; 
-            border-left: 4px solid #00f2ff; box-shadow: 0 0 15px rgba(0,242,255,0.1);
+            border: 1px solid #333; background: rgba(5, 5, 5, 0.9); padding: 12px; 
+            border-left: 3px solid #00f2ff; position: relative;
         }
-        .live-tag { background: #ff0055; color: white; padding: 2px 6px; font-size: 10px; font-weight: bold; margin-bottom: 10px; display: inline-block; }
-        .channel-info { font-size: 13px; margin-bottom: 5px; color: #aaa; }
-        .program-title { font-size: 16px; font-weight: bold; color: #fff; text-transform: uppercase; }
-        .progress-bar { width: 100%; height: 2px; background: #222; margin-top: 10px; position: relative; }
-        .progress-fill { height: 100%; background: #00f2ff; width: 45%; transition: width 1s; }
+        .live-tag { background: #ff0055; color: white; padding: 2px 6px; font-size: 10px; font-weight: bold; display: inline-block; margin-bottom: 8px; }
+        .ch-info { font-size: 11px; color: #888; letter-spacing: 1px; }
+        .video-title { font-size: 14px; font-weight: bold; color: #fff; margin-top: 4px; line-height: 1.3; }
+        .progress-container { width: 100%; height: 2px; background: #222; margin-top: 10px; }
+        #progress-bar { height: 100%; background: #00f2ff; width: 0%; transition: width 1s; }
     </style>
 </head>
-<body>
+<body onclick="window.top.location.href='https://www.outofthegrid.it/progetto-mira'">
+
     <div class="tv-box">
-        <div class="live-tag">ON AIR</div>
-        <div id="display">
-            <div class="channel-info" id="ch-name">CH 02 | EDUCATIONAL</div>
-            <div class="program-title" id="prog-title">SISTEMA PENSIONISTICO: LA VERITÀ</div>
-            <div class="progress-bar"><div class="progress-fill" id="fill"></div></div>
-        </div>
+        <div class="live-tag">LIVE NOW</div>
+        <div class="ch-info" id="ch-display">CARICAMENTO SEGNALE...</div>
+        <div class="video-title" id="title-display">SINTONIZZAZIONE IN CORSO...</div>
+        <div class="progress-container"><div id="progress-bar"></div></div>
     </div>
 
     <script>
-        const programs = [
-            { ch: "CH 01 | OUTOFTHEGRID", title: "AUTOSUFFICIENZA PRATICA" },
-            { ch: "CH 02 | EDUCATIONAL", title: "FOCUS: ANALISI NOVA LECTIO" },
-            { ch: "CH 03 | DISCOVERY", title: "ESPLORAZIONE OFF-GRID" },
-            { ch: "CH 04 | GEOPOLITICA", title: "I CONFLITTI NASCOSTI" },
-            { ch: "CH 05 | SVAGO", title: "AVVENTURE NEL MONDO" }
+        // Database dei video attualmente nelle tue playlist
+        const schedule = [
+            { ch: "CH 02 | EDUCATIONAL", title: "La bomba delle pensioni: cosa attende i giovani" },
+            { ch: "CH 03 | DISCOVERY", title: "Nazario Nesta: A piedi verso l'Europa" },
+            { ch: "CH 04 | GEOPOLITICA", title: "Omega Click: Verità Nascoste" }
         ];
 
-        function updateLive() {
+        function refreshBox() {
             const now = new Date();
-            // Cambia canale mostrato ogni 10 secondi per dare dinamismo
-            const index = Math.floor((now.getSeconds() / 10) % programs.length);
-            const prog = programs[index];
+            // Cambia il video mostrato nel box ogni 15 secondi per rotazione
+            const currentVideo = schedule[now.getSeconds() % schedule.length];
             
-            document.getElementById('ch-name').innerText = prog.ch;
-            document.getElementById('prog-title').innerText = prog.title;
+            document.getElementById('ch-display').innerText = currentVideo.ch;
+            document.getElementById('title-display').innerText = currentVideo.title;
             
-            // Simula la barra di avanzamento del video basata sui minuti
+            // Simula l'avanzamento reale basato sui minuti dell'ora (come la tua TV)
             const progress = (now.getMinutes() / 60) * 100;
-            document.getElementById('fill').style.width = progress + "%";
+            document.getElementById('progress-bar').style.width = progress + "%";
         }
 
-        setInterval(updateLive, 1000);
-        updateLive();
+        setInterval(refreshBox, 1000);
+        refreshBox();
     </script>
 </body>
 </html>
